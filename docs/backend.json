@@ -1,0 +1,292 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the CampusLibro system, including students and librarians.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for login and notifications.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user within the system, determining their permissions.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName",
+        "role"
+      ]
+    },
+    "Book": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Book",
+      "type": "object",
+      "description": "Represents a book in the library's catalog, containing general information about the book.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Book entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the book."
+        },
+        "authors": {
+          "type": "array",
+          "description": "A list of authors for the book.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isbn": {
+          "type": "string",
+          "description": "The International Standard Book Number (ISBN) for the book."
+        },
+        "publisher": {
+          "type": "string",
+          "description": "The name of the book's publisher."
+        },
+        "publicationYear": {
+          "type": "number",
+          "description": "The year the book was published."
+        },
+        "subjects": {
+          "type": "array",
+          "description": "A list of subjects or categories associated with the book.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief summary or description of the book's content."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "authors",
+        "isbn",
+        "publisher",
+        "publicationYear",
+        "subjects"
+      ]
+    },
+    "BookCopy": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "BookCopy",
+      "type": "object",
+      "description": "Represents a specific physical copy of a book available in the library inventory.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the BookCopy entity."
+        },
+        "bookId": {
+          "type": "string",
+          "description": "Reference to the Book entity this copy belongs to. (Relationship: Book 1:N BookCopy)"
+        },
+        "barcode": {
+          "type": "string",
+          "description": "A unique barcode for the physical copy, used for tracking."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the book copy (e.g., 'Available', 'Borrowed', 'Lost', 'Damaged').",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "bookId",
+        "barcode",
+        "status"
+      ]
+    },
+    "Loan": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Loan",
+      "type": "object",
+      "description": "Represents a borrowing transaction where a user loans a specific book copy.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Loan entity."
+        },
+        "bookCopyId": {
+          "type": "string",
+          "description": "Reference to the BookCopy that was borrowed. (Relationship: BookCopy 1:N Loan)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who borrowed the book. (Relationship: User 1:N Loan)"
+        },
+        "borrowDate": {
+          "type": "string",
+          "description": "The date and time when the book was borrowed.",
+          "format": "date-time"
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "The date and time when the book is due to be returned.",
+          "format": "date-time"
+        },
+        "returnDate": {
+          "type": "string",
+          "description": "The date and time when the book was actually returned. Null if not yet returned.",
+          "format": "date-time"
+        },
+        "fineAmount": {
+          "type": "number",
+          "description": "The fine amount incurred for overdue returns, if any."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the loan (e.g., 'Active', 'Returned', 'Overdue').",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "bookCopyId",
+        "userId",
+        "borrowDate",
+        "dueDate",
+        "status"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores individual user profiles. Access is typically restricted to the user themselves (where '{userId}' matches 'request.auth.uid') and possibly to librarians/admins. The 'id' field within the document must match the 'userId' path parameter.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, matching Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_librarian/{userId}",
+        "definition": {
+          "entityName": "role",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "A collection used for Database Access Control (DBAC). The existence of a document in this collection (where '{userId}' matches a user's UID) grants that user librarian privileges. This allows Authorization Independence for role checks.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who has the librarian role."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "role",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "A collection used for Database Access Control (DBAC) for system administrators. The existence of a document here grants administrative privileges, distinct from librarian roles. This ensures Authorization Independence for role checks.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who has the administrator role."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/books/{bookId}",
+        "definition": {
+          "entityName": "Book",
+          "schema": {
+            "$ref": "#/backend/entities/Book"
+          },
+          "description": "The main catalog of all books. Documents in this collection are publicly readable for browsing and searching, and writable by librarians/admins. The 'id' field within the document must match the 'bookId' path parameter.",
+          "params": [
+            {
+              "name": "bookId",
+              "description": "The unique ID of the book."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/book_copies/{bookCopyId}",
+        "definition": {
+          "entityName": "BookCopy",
+          "schema": {
+            "$ref": "#/backend/entities/BookCopy"
+          },
+          "description": "Represents individual physical copies of books in the library's inventory. Documents are publicly readable to check general availability but only writable by librarians/admins for status updates. Includes 'bookId' and 'status' fields. The 'id' field within the document must match the 'bookCopyId' path parameter.",
+          "params": [
+            {
+              "name": "bookCopyId",
+              "description": "The unique ID of the book copy."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/loans/{loanId}",
+        "definition": {
+          "entityName": "Loan",
+          "schema": {
+            "$ref": "#/backend/entities/Loan"
+          },
+          "description": "Records of individual borrowing transactions. Each document includes the 'userId' of the borrower, allowing for Authorization Independence as rules can check 'resource.data.userId == request.auth.uid' without requiring a 'get()' call. This structure facilitates secure QAPs for both individual users (filtering by their 'userId') and librarians (listing all loans). The 'id' field within the document must match the 'loanId' path parameter.",
+          "params": [
+            {
+              "name": "loanId",
+              "description": "The unique ID of the loan record."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure for CampusLibro prioritizes Authorization Independence, Structural Segregation, and DBAC (Database Access Control) using standardized access patterns. For **Authorization Independence**, critical authorization context is denormalized directly into the relevant documents. For example, the `Loan` documents in the `/loans/{loanId}` collection will include the `userId` field, allowing security rules to verify the borrower's identity (`request.auth.uid == resource.data.userId`) without requiring a `get()` call to a separate `User` document. Similarly, roles are managed via dedicated collections like `/roles_librarian/{userId}` where the mere existence of a document grants privileges, eliminating hierarchical authorization dependencies.\n\n**Structural Segregation** is applied by separating entities into distinct top-level collections based on their security posture. For instance, `/books/{bookId}` is publicly readable, while `/users/{userId}` is primarily for owner-specific access. This simplifies security rules by ensuring all documents within a given collection share homogeneous access requirements.\n\n**QAPs (Query as Authorization Policies)** are supported throughout the design. For example:\n*   **User Data:** A user can securely read/write their own profile at `/users/{userId}` where `{userId}` matches `request.auth.uid`.\n*   **Book Catalog & Copies:** The `/books/{bookId}` and `/book_copies/{bookCopyId}` collections are publicly readable, enabling any user to browse the catalog and check general book availability, thus supporting public list queries.\n*   **Loan Management:** The `/loans/{loanId}` collection, with the denormalized `userId`, allows a user to query and retrieve *only their own loans* by adding a `where('userId', '==', request.auth.uid)` clause. This enables secure list operations for individual users. For librarians, the existence of a document in `/roles_librarian/{userId}` grants them permission to read/list all documents in the `/loans/{loanId}` collection, facilitating comprehensive inventory and loan management without needing complex `get()` operations in rules or breaking query filtering.\n\n**Admin Account and Login Process:** Admin accounts are implemented using the **Global Roles (DBAC)** strategy via dedicated collections like `/roles_librarian/{userId}`. An authenticated user's `uid` can be checked against these collections for existence, granting them librarian or administrative privileges. The 'smooth login process' implies standard Firebase Authentication, where user creation/update happens in `/users/{userId}` using `request.auth.uid` as the document ID."
+  }
+}
