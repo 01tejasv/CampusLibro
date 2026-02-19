@@ -1,0 +1,29 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "library-hero",
+      "description": "Modern college library interior",
+      "imageUrl": "https://picsum.photos/seed/library1/1200/600",
+      "imageHint": "library interior"
+    },
+    {
+      "id": "book-stack",
+      "description": "Stack of old and new books",
+      "imageUrl": "https://picsum.photos/seed/books1/400/600",
+      "imageHint": "book stack"
+    },
+    {
+      "id": "student-reading",
+      "description": "Student reading in a library",
+      "imageUrl": "https://picsum.photos/seed/student1/600/400",
+      "imageHint": "student reading"
+    },
+    {
+      "id": "avatar-librarian",
+      "description": "Librarian professional portrait",
+      "imageUrl": "https://picsum.photos/seed/librarian1/100/100",
+      "imageHint": "professional portrait"
+    }
+  ]
+}
