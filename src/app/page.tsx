@@ -1,4 +1,6 @@
 
+"use client"
+
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/nav/Sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,12 +10,37 @@ import {
   BookOpen, 
   Clock, 
   AlertCircle,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { useUser } from "@/firebase"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 export default function Dashboard() {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  const displayName = user.displayName || user.email?.split('@')[0] || "Tejasv";
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -29,7 +56,7 @@ export default function Dashboard() {
             <Card className="col-span-1 md:col-span-2 overflow-hidden bg-primary/5 border-primary/10">
               <div className="flex flex-col md:flex-row h-full">
                 <div className="p-8 flex-1 flex flex-col justify-center space-y-4">
-                  <h2 className="text-3xl font-headline font-bold">Welcome back, Tejasv!</h2>
+                  <h2 className="text-3xl font-headline font-bold">Welcome back, {displayName}!</h2>
                   <p className="text-muted-foreground">
                     You have 2 books currently borrowed. One is due in 3 days. 
                     Explore our new collection of computer science journals.
@@ -58,7 +85,7 @@ export default function Dashboard() {
             <Card className="flex flex-col justify-between">
               <CardHeader>
                 <CardTitle className="text-lg">Quick Stats</CardTitle>
-                <CardDescription>Academic Year 2023-24</CardDescription>
+                <CardDescription>Academic Year 2024-25</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-background rounded-lg border">

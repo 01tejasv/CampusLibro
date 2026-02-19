@@ -98,7 +98,7 @@ export default function AiAssistant() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {result.titleKeywords.length > 0 ? (
+                    {result.titleKeywords && result.titleKeywords.length > 0 ? (
                       result.titleKeywords.map((kw, i) => (
                         <Badge key={i} variant="secondary">{kw}</Badge>
                       ))
@@ -113,7 +113,7 @@ export default function AiAssistant() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {result.authorKeywords.length > 0 ? (
+                    {result.authorKeywords && result.authorKeywords.length > 0 ? (
                       result.authorKeywords.map((kw, i) => (
                         <Badge key={i} variant="secondary">{kw}</Badge>
                       ))
@@ -128,7 +128,7 @@ export default function AiAssistant() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {result.subjectKeywords.length > 0 ? (
+                    {result.subjectKeywords && result.subjectKeywords.length > 0 ? (
                       result.subjectKeywords.map((kw, i) => (
                         <Badge key={i} variant="accent">{kw}</Badge>
                       ))
