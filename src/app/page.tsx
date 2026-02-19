@@ -12,7 +12,7 @@ import {
   ArrowRight,
   Plus
 } from "lucide-react"
-import Link from "next/link"
+import Link from "link"
 import Image from "next/image"
 
 export default function Dashboard() {
@@ -31,7 +31,7 @@ export default function Dashboard() {
             <Card className="col-span-1 md:col-span-2 overflow-hidden bg-primary/5 border-primary/10">
               <div className="flex flex-col md:flex-row h-full">
                 <div className="p-8 flex-1 flex flex-col justify-center space-y-4">
-                  <h2 className="text-3xl font-headline font-bold">Welcome back, John!</h2>
+                  <h2 className="text-3xl font-headline font-bold">Welcome back, Tejasv!</h2>
                   <p className="text-muted-foreground">
                     You have 2 books currently borrowed. One is due in 3 days. 
                     Explore our new collection of computer science journals.

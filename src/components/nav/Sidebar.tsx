@@ -73,7 +73,7 @@ export function AppSidebar() {
             <SidebarMenuButton className="w-full justify-start gap-3 py-6" tooltip="Profile">
               <User className="w-5 h-5" />
               <div className="flex flex-col text-left group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-semibold">John Doe</span>
+                <span className="text-sm font-semibold">Tejasv</span>
                 <span className="text-xs text-muted-foreground">Student</span>
               </div>
             </SidebarMenuButton>
