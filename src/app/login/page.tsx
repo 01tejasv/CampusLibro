@@ -3,14 +3,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser, initiateEmailSignIn, initiateAnonymousSignIn } from '@/firebase';
+import { useAuth, useUser, initiateEmailSignIn, initiateEmailSignUp, initiateAnonymousSignIn } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from ' @/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { BookOpen, Loader2, Sparkles } from 'lucide-react';
+import { BookOpen, Loader2, Sparkles, UserPlus, LogIn } from 'lucide-react';
 
 export default function LoginPage() {
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,13 +25,18 @@ export default function LoginPage() {
     }
   }, [user, isUserLoading, router]);
 
-  const handleEmailSignIn = (e: React.FormEvent) => {
+  const handleAuthAction = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
     setIsSubmitting(true);
-    initiateEmailSignIn(auth, email, password);
+    
+    if (isSignUp) {
+      initiateEmailSignUp(auth, email, password);
+    } else {
+      initiateEmailSignIn(auth, email, password);
+    }
     // Success/error is handled by FirebaseProvider's onAuthStateChanged
-    // and potentially a global error listener.
+    // and the global error listener.
   };
 
   const handleGuestSignIn = () => {
@@ -59,10 +65,14 @@ export default function LoginPage() {
 
         <Card className="border-none shadow-xl">
           <CardHeader>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>Enter your credentials to access your library account.</CardDescription>
+            <CardTitle>{isSignUp ? 'Create Account' : 'Welcome Back'}</CardTitle>
+            <CardDescription>
+              {isSignUp 
+                ? 'Join our university library community today.' 
+                : 'Enter your credentials to access your library account.'}
+            </CardDescription>
           </CardHeader>
-          <form onSubmit={handleEmailSignIn}>
+          <form onSubmit={handleAuthAction}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -89,10 +99,20 @@ export default function LoginPage() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                Sign In
+              <Button type="submit" className="w-full gap-2" disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (isSignUp ? <UserPlus className="w-4 h-4" /> : <LogIn className="w-4 h-4" />)}
+                {isSignUp ? 'Sign Up' : 'Sign In'}
               </Button>
+              
+              <Button 
+                type="button" 
+                variant="ghost" 
+                className="text-xs text-muted-foreground"
+                onClick={() => setIsSignUp(!isSignUp)}
+              >
+                {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Create one'}
+              </Button>
+
               <div className="relative w-full">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />

@@ -39,6 +39,7 @@ export default function Dashboard() {
 
   if (!user) return null;
 
+  // Use Tejasv as the default name for the user
   const displayName = user.displayName || user.email?.split('@')[0] || "Tejasv";
 
   return (
