@@ -1,4 +1,3 @@
-
 "use client"
 
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
@@ -11,17 +10,30 @@ import {
   Clock, 
   AlertCircle,
   ArrowRight,
-  Loader2
+  Loader2,
+  ShieldCheck,
+  Sparkles
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { useUser } from "@/firebase"
+import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from "@/firebase"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import { doc } from "firebase/firestore"
 
 export default function Dashboard() {
   const { user, isUserLoading } = useUser();
+  const db = useFirestore();
   const router = useRouter();
+
+  // Check for admin/librarian roles
+  const librarianDocRef = useMemoFirebase(() => {
+    if (!db || !user?.uid) return null;
+    return doc(db, 'roles_librarian', user.uid);
+  }, [db, user?.uid]);
+
+  const { data: librarianData, isLoading: isRoleLoading } = useDoc(librarianDocRef);
+  const isStaff = !!librarianData;
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -29,7 +41,18 @@ export default function Dashboard() {
     }
   }, [user, isUserLoading, router]);
 
-  if (isUserLoading) {
+  const handleClaimStaffRole = () => {
+    if (!db || !user?.uid) return;
+    const roleRef = doc(db, 'roles_librarian', user.uid);
+    setDocumentNonBlocking(roleRef, { 
+      id: user.uid, 
+      email: user.email, 
+      role: 'librarian',
+      claimedAt: new Date().toISOString()
+    }, { merge: true });
+  };
+
+  if (isUserLoading || isRoleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -39,7 +62,6 @@ export default function Dashboard() {
 
   if (!user) return null;
 
-  // Use Tejasv as the default name for the user
   const displayName = user.displayName || user.email?.split('@')[0] || "Tejasv";
 
   return (
@@ -57,18 +79,26 @@ export default function Dashboard() {
             <Card className="col-span-1 md:col-span-2 overflow-hidden bg-primary/5 border-primary/10">
               <div className="flex flex-col md:flex-row h-full">
                 <div className="p-8 flex-1 flex flex-col justify-center space-y-4">
-                  <h2 className="text-3xl font-headline font-bold">Welcome back, {displayName}!</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-3xl font-headline font-bold">Welcome back, {displayName}!</h2>
+                    {isStaff && <Badge className="bg-primary/20 text-primary border-primary/30">Staff</Badge>}
+                  </div>
                   <p className="text-muted-foreground">
                     You have 2 books currently borrowed. One is due in 3 days. 
                     Explore our new collection of computer science journals.
                   </p>
-                  <div className="flex gap-4 pt-2">
+                  <div className="flex flex-wrap gap-4 pt-2">
                     <Button asChild>
                       <Link href="/catalog">Browse Catalog</Link>
                     </Button>
                     <Button variant="outline" asChild>
                       <Link href="/loans">My Loans</Link>
                     </Button>
+                    {!isStaff && (
+                      <Button variant="secondary" className="gap-2" onClick={handleClaimStaffRole}>
+                        <ShieldCheck className="w-4 h-4" /> Become Librarian
+                      </Button>
+                    )}
                   </div>
                 </div>
                 <div className="relative w-full md:w-1/3 h-48 md:h-auto overflow-hidden">
@@ -113,6 +143,17 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Prototyping Tip */}
+          {!isStaff && (
+            <div className="bg-accent/10 border border-accent/20 rounded-lg p-4 flex items-center gap-4">
+              <Sparkles className="text-accent w-8 h-8 shrink-0" />
+              <div>
+                <p className="font-semibold text-accent">Prototyping Tip</p>
+                <p className="text-sm text-muted-foreground">Click "Become Librarian" to unlock staff management features like Inventory and Notifications.</p>
+              </div>
+            </div>
+          )}
 
           {/* Activity Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
