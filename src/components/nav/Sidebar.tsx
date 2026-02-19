@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -83,6 +84,10 @@ export function AppSidebar() {
     }
   };
 
+  // Dynamically determine name and initial from user profile
+  const userName = user?.displayName || user?.email?.split('@')[0] || "User";
+  const userInitial = userName[0]?.toUpperCase() || "U";
+
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader className="flex items-center justify-center py-6">
@@ -145,10 +150,10 @@ export function AppSidebar() {
               onClick={toggleStaffRole}
             >
               <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-accent-foreground font-bold shrink-0">
-                {user?.displayName?.[0] || user?.email?.[0]?.toUpperCase() || 'T'}
+                {userInitial}
               </div>
               <div className="flex flex-col text-left group-data-[collapsible=icon]:hidden overflow-hidden">
-                <span className="text-sm font-semibold truncate">{user?.displayName || 'Tejasv'}</span>
+                <span className="text-sm font-semibold truncate">{userName}</span>
                 <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                   {isStaff ? <ShieldCheck className="w-3 h-3 text-primary" /> : <User className="w-3 h-3" />}
                   {isStaff ? 'Librarian/Admin' : 'Student'}

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
@@ -62,7 +63,8 @@ export default function Dashboard() {
 
   if (!user) return null;
 
-  const displayName = user.displayName || user.email?.split('@')[0] || "Tejasv";
+  // Dynamically determine name from user profile
+  const displayName = user.displayName || user.email?.split('@')[0] || "User";
 
   return (
     <SidebarProvider>
