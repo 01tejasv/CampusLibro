@@ -98,7 +98,7 @@ export default function AiAssistant() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {result.titleKeywords && result.titleKeywords.length > 0 ? (
+                    {result?.titleKeywords && result.titleKeywords.length > 0 ? (
                       result.titleKeywords.map((kw, i) => (
                         <Badge key={i} variant="secondary">{kw}</Badge>
                       ))
@@ -113,7 +113,7 @@ export default function AiAssistant() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {result.authorKeywords && result.authorKeywords.length > 0 ? (
+                    {result?.authorKeywords && result.authorKeywords.length > 0 ? (
                       result.authorKeywords.map((kw, i) => (
                         <Badge key={i} variant="secondary">{kw}</Badge>
                       ))
@@ -128,7 +128,7 @@ export default function AiAssistant() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {result.subjectKeywords && result.subjectKeywords.length > 0 ? (
+                    {result?.subjectKeywords && result.subjectKeywords.length > 0 ? (
                       result.subjectKeywords.map((kw, i) => (
                         <Badge key={i} variant="accent">{kw}</Badge>
                       ))
@@ -145,11 +145,11 @@ export default function AiAssistant() {
                   <CardContent className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Genre:</span>
-                      <span className="font-medium">{result.genre || "N/A"}</span>
+                      <span className="font-medium">{result?.genre || "N/A"}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Year:</span>
-                      <span className="font-medium">{result.yearPublished || "Any"}</span>
+                      <span className="font-medium">{result?.yearPublished || "Any"}</span>
                     </div>
                   </CardContent>
                 </Card>

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth, useUser, initiateEmailSignIn, initiateEmailSignUp, initiateAnonymousSignIn } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from ' @/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { BookOpen, Loader2, Sparkles, UserPlus, LogIn } from 'lucide-react';
 
@@ -35,8 +35,6 @@ export default function LoginPage() {
     } else {
       initiateEmailSignIn(auth, email, password);
     }
-    // Success/error is handled by FirebaseProvider's onAuthStateChanged
-    // and the global error listener.
   };
 
   const handleGuestSignIn = () => {
