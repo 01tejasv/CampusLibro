@@ -45,17 +45,17 @@ service cloud.firestore {
     match /roles_admin/{userId} {
       allow get: if isSignedIn();
       allow list: if isAdmin();
-      // Allow self-promotion for prototyping purposes
-      allow create: if isOwner(userId);
-      allow update, delete: if isAdmin();
+      // Allow self-management for prototyping purposes
+      allow create, delete: if isOwner(userId);
+      allow update: if isAdmin();
     }
 
     match /roles_librarian/{userId} {
       allow get: if isSignedIn();
       allow list: if canManageLibrary();
-      // Allow self-promotion for prototyping purposes
-      allow create: if isOwner(userId);
-      allow update, delete: if isAdmin();
+      // Allow self-management for prototyping purposes
+      allow create, delete: if isOwner(userId);
+      allow update: if isAdmin();
     }
 
     match /books/{bookId} {

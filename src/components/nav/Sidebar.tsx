@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link"
@@ -25,7 +24,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { useUser, useAuth, useDoc, useMemoFirebase } from "@/firebase"
+import { useUser, useAuth, useDoc, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase"
 import { doc } from "firebase/firestore"
 import { getFirestore } from "firebase/firestore"
 
@@ -45,7 +44,7 @@ export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const auth = useAuth()
-  const { user, isUserLoading } = useUser()
+  const { user } = useUser()
   const db = getFirestore()
 
   // Check for admin/librarian roles
@@ -68,6 +67,21 @@ export function AppSidebar() {
     await auth.signOut();
     router.push('/login');
   }
+
+  const toggleStaffRole = () => {
+    if (!db || !user?.uid) return;
+    const roleRef = doc(db, 'roles_librarian', user.uid);
+    if (isStaff) {
+      deleteDocumentNonBlocking(roleRef);
+    } else {
+      setDocumentNonBlocking(roleRef, { 
+        id: user.uid, 
+        email: user.email, 
+        role: 'librarian',
+        claimedAt: new Date().toISOString()
+      }, { merge: true });
+    }
+  };
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -125,9 +139,13 @@ export function AppSidebar() {
       <SidebarFooter className="p-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="w-full justify-start gap-3 py-8" tooltip="Profile">
+            <SidebarMenuButton 
+              className="w-full justify-start gap-3 py-8" 
+              tooltip={`Switch to ${isStaff ? 'Student' : 'Staff'} Mode`}
+              onClick={toggleStaffRole}
+            >
               <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-accent-foreground font-bold shrink-0">
-                {user?.displayName?.[0] || user?.email?.[0] || 'T'}
+                {user?.displayName?.[0] || user?.email?.[0]?.toUpperCase() || 'T'}
               </div>
               <div className="flex flex-col text-left group-data-[collapsible=icon]:hidden overflow-hidden">
                 <span className="text-sm font-semibold truncate">{user?.displayName || 'Tejasv'}</span>
