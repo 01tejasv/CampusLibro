@@ -2,6 +2,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/nav/Sidebar"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,7 @@ import { Sparkles, Loader2, Search, Book, User, Calendar, Tag } from "lucide-rea
 import { aiSearchAssistant, type AiSearchAssistantOutput } from "@/ai/flows/ai-search-assistant"
 
 export default function AiAssistant() {
+  const router = useRouter()
   const [query, setQuery] = useState("")
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<AiSearchAssistantOutput | null>(null)
@@ -27,6 +29,17 @@ export default function AiAssistant() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleViewCatalog = () => {
+    if (!result) return
+    // Combine keywords for a broad catalog search
+    const keywords = [
+      ...(result.titleKeywords || []),
+      ...(result.subjectKeywords || [])
+    ].join(" ") || query
+    
+    router.push(`/catalog?q=${encodeURIComponent(keywords)}`)
   }
 
   return (
@@ -98,7 +111,7 @@ export default function AiAssistant() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {result?.titleKeywords && result.titleKeywords.length > 0 ? (
+                    {result.titleKeywords && result.titleKeywords.length > 0 ? (
                       result.titleKeywords.map((kw, i) => (
                         <Badge key={i} variant="secondary">{kw}</Badge>
                       ))
@@ -113,7 +126,7 @@ export default function AiAssistant() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {result?.authorKeywords && result.authorKeywords.length > 0 ? (
+                    {result.authorKeywords && result.authorKeywords.length > 0 ? (
                       result.authorKeywords.map((kw, i) => (
                         <Badge key={i} variant="secondary">{kw}</Badge>
                       ))
@@ -128,7 +141,7 @@ export default function AiAssistant() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2">
-                    {result?.subjectKeywords && result.subjectKeywords.length > 0 ? (
+                    {result.subjectKeywords && result.subjectKeywords.length > 0 ? (
                       result.subjectKeywords.map((kw, i) => (
                         <Badge key={i} variant="accent">{kw}</Badge>
                       ))
@@ -145,18 +158,18 @@ export default function AiAssistant() {
                   <CardContent className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Genre:</span>
-                      <span className="font-medium">{result?.genre || "N/A"}</span>
+                      <span className="font-medium">{result.genre || "N/A"}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Year:</span>
-                      <span className="font-medium">{result?.yearPublished || "Any"}</span>
+                      <span className="font-medium">{result.yearPublished || "Any"}</span>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
               <div className="flex justify-center pt-4">
-                <Button size="lg" variant="default" className="gap-2">
+                <Button size="lg" variant="default" className="gap-2" onClick={handleViewCatalog}>
                   View Matching Catalog Items
                 </Button>
               </div>
